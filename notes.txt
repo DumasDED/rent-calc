@@ -1,0 +1,61 @@
+Each tenant is a tenant object.
+
+
+Tenants have the following properties:
+- Name: string; tenant's name
+- Rent: number; how much they pay in rent
+- Utilities: dict; which utilities they paid and how much; utility names as keys, payments as values
+- Owes: number; how much they owe for utilities this month
+- Adjustment: number; most recent rounding adjustment they've taken
+
+
+Tenants have the following methods:
+- Paid: number; how much they paid for utilities this month
+- Remaining: number; the remaining amount owed for utilities; Owes - Paid
+- Total: number; the total owed between rent & utilities; Rent + Remaining
+
+
+Name is populated from the config file. Name is the config section name.
+Rent is populated from the config file. Rent is an option under the tenant section name.
+Utilities are populated from the config file. Utilities is an option under the tenant section name.
+Adjustment is populated from the config file.
+
+
+
+Important values that don't belong to a tenant object:
+- Total_Rent: the total rent owed for the month; populated from the config
+- Total_Utilities: the total utilities paid for the month; calculated from command line values
+- Tenant_Owes: the total utilities owed by each individual tenant; calculated from Total_Utilities, divided by
+    the number of tenants
+- Difference: the difference of the total rent and the summed tenant totals. This should only ever be one of three
+    values: -1, 0, or 1.
+
+
+Floating point numbers are inaccurate. Use the decimal class: from decimal import Decimal.
+
+
+Use vars() to convert an argparse Namespace into a dictionary.
+
+
+In order to know what arguments are required, I will need to read utilities from the config. Need to do that first.
+
+
+Steps:
+
+- 1. Get Total_Rent from config.
+- 2. Get tenant list from config.
+- 3. Create tenant objects.
+- 4. For each tenant:
+-     a. Populate name from config.
+-     b. Populate rent from config.
+-     c. Populate utility dict keys from config.
+-     e. Populate adjustment value from config.
+- 5. Get all utility keys from all tenants and add arguments to command line parser.
+- 6. Parse command line arguments and return dictionary
+- 7. Get Total_Utilities from command line arguments.
+- 8. For each tenant, populate utility dict values from command line argument dictionary.
+- 9. Get Tenant_Owes from Total_Utilities divided by the count of tenants, or the length of the tenant list.
+- 10. Assign Tenant_Owes value to the owes attribute of teach tenant.
+- 11. Determine difference between sum of tenant totals and total rent and assign to Difference variable.
+12. If the Difference is greater than or less than zero, pick a tenant at random to assign it to so long as he wasn't
+    the last to receive it.
