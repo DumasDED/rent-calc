@@ -39,8 +39,6 @@ for tenant in tenants:
 
 difference = sum([tenant.total() for tenant in tenants]) - total_rent
 
-# print difference
-
 if difference == 0:
     pass
 elif difference > 0:
