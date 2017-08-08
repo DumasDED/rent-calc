@@ -82,7 +82,7 @@ print ""
 print "What each of us owes - what each of us paid = remaining amount owed:"
 
 for tenant in tenants:
-    print f.format("{0}: ${1:,.2f} - {2:,.2f} = {3:,.2f}",
+    print f.format("{0}: {1:$,.2f} - {2:,.2f} = {3:$,.2f}",
                    tenant.name,
                    tenant.owes,
                    tenant.paid(),
