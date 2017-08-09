@@ -19,3 +19,6 @@ class Tenant:
 
     def total(self):
         return self.rent + self.remaining()
+
+    def total_adjusted(self):
+        return self.total() + self.adjustment

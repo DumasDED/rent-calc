@@ -22,6 +22,9 @@ f = NegativeParenFormatter()
 
 tenants = []
 
+new_plus = None
+new_minus = None
+
 for tenant in [section for section in cfg.sections() if section != 'MAIN']:
     name = tenant.title()
     rent = cfg.get(tenant, 'rent')
@@ -43,7 +46,7 @@ for tenant in tenants:
             if arg == utility:
                 tenant.utilities[utility] = args[arg][0]
 
-difference = sum([tenant.total() for tenant in tenants]) - total_rent
+difference = total_rent - sum([tenant.total() for tenant in tenants])
 
 if difference == 0:
     pass
@@ -53,8 +56,6 @@ elif difference > 0:
 elif difference < 0:
     new_minus = random.choice([tenant for tenant in tenants if tenant.name.lower() != last_minus.lower()])
     new_minus.adjustment = difference
-
-print "Breakdown:"
 
 print ""
 
@@ -82,9 +83,45 @@ print ""
 print "What each of us owes - what each of us paid = remaining amount owed:"
 
 for tenant in tenants:
-    print f.format("{0}: {1:$,.2f} - {2:,.2f} = {3:$,.2f}",
+    print f.format("- {0}: {1:($),.2f} - {2:(),.2f} = {3:($),.2f}",
                    tenant.name,
                    tenant.owes,
                    tenant.paid(),
-                   tenant.owes - tenant.paid()
+                   tenant.remaining()
                    )
+
+print ""
+
+print "Our individual rents + remaining amount owed = total amount owed:"
+
+for tenant in tenants:
+    print f.format("- {0}: {1:($),.2f} + {2:($),.2f} = {3:($),.2f}",
+                   tenant.name,
+                   tenant.rent,
+                   tenant.remaining(),
+                   tenant.total()
+                   ),
+    if tenant.adjustment != 0:
+        print f.format("({0} {1:,.2f} = {2:($),.2f})",
+                       "+" if tenant.adjustment > 0 else "-",
+                       tenant.adjustment,
+                       tenant.total_adjusted()
+                       )
+    else:
+        print ""
+
+
+print ""
+
+print string.join([f.format("{0:($),.2f}", tenant.total_adjusted()) for tenant in tenants], " + "),
+print f.format(" = {0:($),.2f}", sum([tenant.total_adjusted() for tenant in tenants]))
+
+print ""
+
+if raw_input("Commit? (y/n): ")[0] == 'y':
+    if new_plus is not None:
+        cfg.set('MAIN', 'last_plus', new_plus.name.upper())
+        cfg.write(open('config.ini','w'))
+    if new_minus is not None:
+        cfg.set('MAIN', 'last_minus', new_minus.name.upper())
+        cfg.write(open('config.ini', 'w'))
